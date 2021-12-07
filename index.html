@@ -9,6 +9,30 @@
     <link rel="stylesheet" href="assets/css/style.css" />
 </head>
 <body>
+    <header>
+        <h1>Weather Dashboard</h1>
+    </header>
+    <main>
+        <div class="cities">
+            <div class="search-city">
+                <form>
+                    <label>Seach for a City:</label>
+                    <input type="text" name="city" id="city" placeholder="London" />
+                    <button type="submit">Submit</button>
+                </form>
+                <p>Not finding the right city? Try adding a comma and the state or country (I.E. "Rome, Italy", "Salem, OR")</p>
+            </div>
+            <div class="search-history"></div>
+        </div>
+        <div class="weather">
+            <div class="current-info">
+                <h2 id="city-name"></h2>
+            </div>
+            <div class="forecast">
+                <h3>5-Day Forecast:</h3>
+            </div>
+        </div>
+    </main>
     <script src="assets/js/script.js"></script>
 </body>
 </html>

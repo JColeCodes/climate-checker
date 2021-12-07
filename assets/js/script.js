@@ -1,6 +1,7 @@
 var cityNameEl = document.querySelector("#city-name");
 var currentInfoEl = document.querySelector(".data-list");
 var displayWeekEl = document.querySelector(".week");
+var weatherDiv = document.querySelector(".weather");
 var searchInputEl = document.querySelector(".search-city input");
 var searchButtonEl = document.querySelector(".search-city button");
 
@@ -21,6 +22,9 @@ var getWeather = function(cityName) {
         })
         .then(function(data) {
             console.log(data);
+            if (weatherDiv.classList.contains("hidden")) {
+                weatherDiv.classList.remove("hidden");
+            }
             // Clear any previous content
             currentInfoEl.innerHTML = "";
             // Display city name

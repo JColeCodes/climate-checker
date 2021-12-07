@@ -5,6 +5,7 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Weather Dashboard</title>
+    <link href="https://fonts.googleapis.com/css2?family=Nanum+Gothic:wght@400;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.11.2/css/all.min.css">
     <link rel="stylesheet" href="assets/css/style.css" />
 </head>
@@ -16,15 +17,15 @@
         <div class="cities">
             <div class="search-city">
                 <form>
-                    <label>Seach for a City:</label>
+                    <h3>Seach for a City:</h3>
                     <input type="text" name="city" id="city" placeholder="London" />
                     <button type="submit">Submit</button>
                 </form>
                 <p>Not finding the right city? Try adding a comma and the state or country (I.E. "Rome, Italy", "Salem, OR")</p>
             </div>
-            <div class="search-history"></div>
+            <div class="search-history"><ul></ul></div>
         </div>
-        <div class="weather">
+        <div class="weather hidden">
             <div class="current-info">
                 <h2 id="city-name"></h2>
                 <ul class="data-list"></ul>

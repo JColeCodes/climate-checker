@@ -1,0 +1,203 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+/* Body & General Stuff */
+body {
+    background-color: #fbfbfb;
+    font-family: 'Nanum Gothic', sans-serif;
+    font-size: 16px;
+    color: #1a252e;
+}
+
+a, a:hover { transition: all 0.5s ease-in-out; }
+
+/* Header */
+header {
+    width: 100%;
+    padding: 50px;
+    text-align: center;
+    font-size: 1.5em;
+    background-color: #1a252e;
+    background-image: linear-gradient(#1f3342, #1a252e);
+    color: #fbfbfb;
+}
+header h1 {
+    font-weight: 400;
+}
+
+/* Main Body */
+main {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    width: 1380px;
+    max-width: 100%;
+    margin: 0 auto;
+}
+h2, h3, h4 {
+    color: #26435c;
+}
+ul {
+    list-style: none;
+}
+
+/* Left Side - City Search */
+main .cities {
+    width: 30%;
+    padding: 20px;
+}
+main .cities h3 {
+    margin: 5px;
+}
+main .cities input, main .cities button {
+    width: 100%;
+    padding: 10px;
+    margin: 5px;
+    font-size: 0.9em;
+}
+main .cities p {
+    font-size: .8em;
+    padding: 5px;
+    font-style: italic;
+}
+main .cities input {
+    background-color: #ffffff;
+    border: 1px solid #dee1e3;
+    color: #26435c;
+}
+main .cities input:focus {
+    outline: 1px solid #dee1e3;
+}
+main .cities button {
+    border: 0;
+    background-color: #26435c;
+    color: #fbfbfb;
+}
+main .cities button:hover {
+    cursor: pointer;
+}
+
+/* Left Side - Search History */
+main .cities .search-history {
+    border-top: 2px solid #dee1e3;
+    margin: 10px 0 0 0;
+}
+main .cities .search-history ul { 
+    margin: 10px 0 0 0;
+}
+main .cities .search-history li {
+    margin: 2px 0;
+    text-align: center;
+}
+main .cities .search-history a {
+    display: block;
+    padding: 10px;
+    width: 100%;
+    background-color: #dee1e3;
+    color: #26435c;
+    text-decoration: none;
+}
+main .cities .search-history a:hover {
+    background-color: #e4e9eb;
+    color: #1a252e;
+}
+
+/* Right Side - Weather Display */
+main .weather {
+    width: 70%;
+    padding: 20px;
+}
+
+main .current-info {
+    background-color: #f2f4f5;
+    border: 1px solid #dee1e3;
+    padding: 20px;
+}
+main .current-info h2 {
+    font-size: 1.8em;
+    margin: 0 0 10px 0;
+}
+main .current-info h2 span {
+    font-size: 0.65em;
+    padding: 8px;
+    margin: -5px 0 0 15px;
+    background-color: #26435c;
+    color: #f2f4f5;
+    font-weight: 400;
+    position: absolute;
+}
+main .current-info li {
+    padding: 10px 0;
+}
+
+main .forecast h3 {
+    margin: 15px 5px 5px;
+}
+
+/* Right Side - 5-Day Forecast */
+main .week {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-start;
+    justify-content: space-around;
+}
+main .day {
+    flex: 1;
+    background-color: #26435c;
+    color: #fbfbfb;
+    padding: 15px;
+    margin: 5px;
+    font-size: 0.88em;
+}
+main .day h4 {
+    color: #ffffff;
+    margin: 0 0 10px 0;
+    font-size: 1.2em;
+}
+main .day p {
+    margin: 10px 0 0 0;
+}
+
+.hidden .current-info, .hidden .forecast {
+    display: none;
+}
+
+/* RESPONSIVE */
+@media screen and (max-width: 1024px) {
+    main .cities .search-history {
+        font-size: 0.9em;
+    }
+}
+
+@media screen and (max-width: 900px) {
+    main .current-info h2 span {
+        margin: 10px 0;
+        position: relative;
+        display: inline-block;
+    }
+}
+
+@media screen and (max-width: 600px) {
+    main .cities, main .weather {
+        width: 100%;
+    }
+    main .current-info h2 {
+        text-align: center;
+    }
+    main .current-info h2 span {
+        display: block;
+    }
+    main .day {
+        flex: 0 100%;
+    }
+}
+
+@media screen and (max-width: 400px) {
+    header {
+        padding: 30px;
+        font-size: 1.3em;
+    }
+}

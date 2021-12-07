@@ -1,5 +1,6 @@
 var cityNameEl = document.querySelector("#city-name");
 var currentInfoEl = document.querySelector(".data-list");
+var displayWeekEl = document.querySelector(".week");
 var searchInputEl = document.querySelector(".search-city input");
 var searchButtonEl = document.querySelector(".search-city button");
 
@@ -46,13 +47,33 @@ var getWeather = function(cityName) {
             // For each one, add list item and append to page
             for (var i = 0; i < displayData.length; i++) {
                 var datalistItem = document.createElement("li");
-                datalistItem.textContent = displayData[i].label + displayData[i].info + displayData[i].unit;
+                datalistItem.textContent =
+                    displayData[i].label + 
+                    displayData[i].info + 
+                    displayData[i].unit;
                 currentInfoEl.appendChild(datalistItem);
             }
+            // Get date and time based off timezone
             var time = moment().tz(data.timezone).format("MM/DD/YYYY h:mm A");
             var displayDate = document.createElement("span");
             displayDate.textContent = time;
             cityNameEl.appendChild(displayDate);
+            
+            // Display 5 day forecast starting tomorrow
+            for (var i = 1; i < 6; i++) {
+                // Get date from daily weather
+                var weeklyDate = moment.unix(data.daily[i].dt).format("MM/DD/YYYY");
+                // Create div element with class "day"
+                var dayDiv = document.createElement("div");
+                dayDiv.classList.add("day");
+                // Weather data
+                var dayData = "<h4>" + weeklyDate + "</h4>\
+                    <p>Temp: " + data.daily[i].temp.day + "°F</p>\
+                    <p>Wind: "  +data.daily[i].wind_speed + " MPH</p>\
+                    <p>Humidity: " + data.daily[i].humidity + "%</p>";
+                dayDiv.innerHTML = dayData;
+                displayWeekEl.appendChild(dayDiv);
+            }
             
         });
 }

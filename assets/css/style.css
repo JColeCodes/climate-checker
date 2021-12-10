@@ -12,7 +12,7 @@ body {
     color: #1a252e;
 }
 
-a, a:hover { transition: all 0.5s ease-in-out; }
+a, a:hover, button, button:hover { transition: all 0.5s ease-in-out; }
 
 /* Header */
 header {
@@ -44,6 +44,20 @@ ul {
     list-style: none;
 }
 
+/* Load Icon */
+.loading {
+    border: 8px solid #dee1e3;
+    border-top-color: #26435c;
+    border-radius: 50%;
+    width: 40px; height: 40px;
+    animation: load 1s linear infinite;
+    margin: 0 auto;
+}
+@keyframes load {
+	0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
 /* Left Side - City Search */
 main .cities {
     width: 30%;
@@ -67,6 +81,7 @@ main .cities input {
     background-color: #ffffff;
     border: 1px solid #dee1e3;
     color: #26435c;
+    font-family: 'Nanum Gothic', sans-serif;
 }
 main .cities input:focus {
     outline: 1px solid #dee1e3;
@@ -75,6 +90,7 @@ main .cities button {
     border: 0;
     background-color: #26435c;
     color: #fbfbfb;
+    font-family: 'Nanum Gothic', sans-serif;
 }
 main .cities button:hover {
     cursor: pointer;
@@ -92,15 +108,18 @@ main .cities .search-history li {
     margin: 2px 0;
     text-align: center;
 }
-main .cities .search-history a {
+main .cities .search-history button {
     display: block;
     padding: 10px;
     width: 100%;
     background-color: #dee1e3;
     color: #26435c;
     text-decoration: none;
+    margin: 0;
+    font-size: 1em;
+    font-family: 'Nanum Gothic', sans-serif;
 }
-main .cities .search-history a:hover {
+main .cities .search-history button:hover {
     background-color: #e4e9eb;
     color: #1a252e;
 }
@@ -119,6 +138,7 @@ main .current-info {
 main .current-info h2 {
     font-size: 1.8em;
     margin: 0 0 10px 0;
+    position: relative;
 }
 main .current-info h2 span {
     font-size: 0.65em;

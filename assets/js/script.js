@@ -2,6 +2,7 @@ var cityNameEl = document.querySelector("#city-name");
 var currentInfoEl = document.querySelector(".data-list");
 var displayWeekEl = document.querySelector(".week");
 var weatherDiv = document.querySelector(".weather");
+var searchHistoryEl = document.querySelector("#search-history");
 var searchInputEl = document.querySelector(".search-city input");
 var searchButtonEl = document.querySelector(".search-city button");
 
@@ -10,6 +11,30 @@ var currentData = {
     lat: null,
     lon: null
 };
+var recentCities = [];
+
+// Load icon
+var loader = document.createElement("div");
+loader.classList.add("loading");
+
+// Show recent cities list
+var showRecent = function() {
+    // Clear to prevent duplicates
+    searchHistoryEl.innerHTML = "";
+    // Add each city
+    for (var i = 0; i < recentCities.length; i++) {
+        // Create li and button
+        var searchHistoryLi = document.createElement("li");
+        var searchHistoryButton = document.createElement("button");
+        // Button text and onclick function call
+        searchHistoryButton.textContent = recentCities[i];
+        searchHistoryButton.setAttribute("onClick", "smartSearch('" + recentCities[i] + "')");
+        // Append to page
+        searchHistoryLi.appendChild(searchHistoryButton);
+        searchHistoryEl.appendChild(searchHistoryLi);
+    }
+}
+// showRecent();
 
 // Get weather
 var getWeather = function(cityName) {
@@ -22,11 +47,15 @@ var getWeather = function(cityName) {
         })
         .then(function(data) {
             console.log(data);
+            // Remove load icon when data is ready
+            weatherDiv.removeChild(loader);
+
             if (weatherDiv.classList.contains("hidden")) {
                 weatherDiv.classList.remove("hidden");
             }
             // Clear any previous content
             currentInfoEl.innerHTML = "";
+            displayWeekEl.innerHTML = "";
             // Display city name
             cityNameEl.textContent = cityName;
             // Get which data should be displayed
@@ -79,6 +108,7 @@ var getWeather = function(cityName) {
                 displayWeekEl.appendChild(dayDiv);
             }
             
+        showRecent();
         });
 }
 
@@ -94,6 +124,7 @@ var getCoordinates = function(city, code) { // Inputs city and code names
             return response.json();
         })
         .then(function(data) {
+            console.log(data);
             // Reverse order, so API's first result comes out if loop isn't broken
             data.reverse();
             for (var i = 0; i < data.length; i++) {
@@ -103,7 +134,7 @@ var getCoordinates = function(city, code) { // Inputs city and code names
                 // Create city name var for display
                 var cityName = data[i].name + ", ";
                 // If city searched is a US state, add the state in there
-                if (data[i].country === "US") {
+                if (data[i].state) {
                     cityName += data[i].state + ", ";
                 }
                 // Add country to the var
@@ -118,6 +149,18 @@ var getCoordinates = function(city, code) { // Inputs city and code names
                 }
             }
             console.log(currentData);
+
+            // If recent cities array contains current city, remove so it's not in the list twice
+            if (recentCities.includes(city)) {
+                var cityIndex = recentCities.indexOf(city);
+                recentCities.splice(cityIndex, 1);
+            }
+            // Add this city to beginning of recent cities array
+            if (code) {
+                recentCities.unshift(city + ", " + code);
+            } else {
+                recentCities.unshift(city);
+            }
 
             // Time to get the weather
             getWeather(cityName);
@@ -218,7 +261,13 @@ var smartSearch = function(input) {
         // If only a city name is input ("I.E. London") without a , to denote specifics, get coordinates
         getCoordinates(input);
     }
-    
+
+    if (!weatherDiv.classList.contains("hidden")) {
+        weatherDiv.classList.add("hidden");
+    }
+
+    // Append load icon
+    weatherDiv.appendChild(loader);
 }
 
 // Search button

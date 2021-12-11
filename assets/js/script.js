@@ -13,9 +13,16 @@ var currentData = {
 };
 var recentCities = [];
 
-// Load icon
+// Loading icon
 var loader = document.createElement("div");
 loader.classList.add("loading");
+
+// Remove cities from recent cities list
+var removeRecent = function(cityName) {
+    var cityIndex = recentCities.indexOf(cityName);
+    recentCities.splice(cityIndex, 1);
+    showRecent();
+}
 
 // Show recent cities list
 var showRecent = function() {
@@ -26,15 +33,48 @@ var showRecent = function() {
         // Create li and button
         var searchHistoryLi = document.createElement("li");
         var searchHistoryButton = document.createElement("button");
-        // Button text and onclick function call
+        searchHistoryButton.classList.add("recent-button");
+
+        // Button text shows full city + state + country
         searchHistoryButton.textContent = recentCities[i];
-        searchHistoryButton.setAttribute("onClick", "smartSearch('" + recentCities[i] + "')");
+        // Get city name to search again
+        var cityName = recentCities[i].split(", ");
+        if (cityName[cityName.length - 1] == "US") {
+            // If US city, search by city + state
+            var searchCity = cityName[0] + ", " + cityName[1];
+        } else {
+            // If else, search by city + country
+            var searchCity = cityName[0] + ", " + cityName[cityName.length - 1];
+        }
+        // Button onClick function
+        searchHistoryButton.setAttribute("onClick", "smartSearch('" + searchCity + "')");
+
+        // Create delete button for if user wants to remove the city from recent searches
+        var searchButtonDelete = document.createElement("button");
+        searchButtonDelete.classList.add("delete-button");
+        searchButtonDelete.innerHTML = "<i class='fas fa-times'></i>";
+        searchButtonDelete.setAttribute("onClick", "removeRecent('" + recentCities[i] + "')");
+
         // Append to page
         searchHistoryLi.appendChild(searchHistoryButton);
+        searchHistoryLi.appendChild(searchButtonDelete);
         searchHistoryEl.appendChild(searchHistoryLi);
     }
+    if (recentCities.length > 10) {
+        recentCities.pop();
+        showRecent();
+    }
 }
-// showRecent();
+
+// Get from localStorage
+if ("weather-cities" in localStorage) {
+    recentCities = JSON.parse(localStorage.getItem("weather-cities"));
+    showRecent();
+}
+// Save in localStorage
+var saveCities = function() {
+    localStorage.setItem("weather-cities", JSON.stringify(recentCities));
+}
 
 // Get weather
 var getWeather = function(cityName) {
@@ -108,7 +148,8 @@ var getWeather = function(cityName) {
                 displayWeekEl.appendChild(dayDiv);
             }
             
-        showRecent();
+            showRecent();
+            saveCities();
         });
 }
 
@@ -116,7 +157,7 @@ var getWeather = function(cityName) {
 var getCoordinates = function(city, code) { // Inputs city and code names
     var cityName = city;
     
-    var cityURL = "http://api.openweathermap.org/geo/1.0/direct?q=" + cityName + "&limit=3&APPID=75a79d6afb356a02efc4ce91a90d5865"; // Limited to 3 cities of the same name... Sorry to all the Springfields out there.
+    var cityURL = "http://api.openweathermap.org/geo/1.0/direct?q=" + cityName + "&limit=5&APPID=75a79d6afb356a02efc4ce91a90d5865"; // Limited to 5 cities of the same name... Sorry to all the Springfields out there.
 
     // Run fetch
     fetch(cityURL)
@@ -151,16 +192,11 @@ var getCoordinates = function(city, code) { // Inputs city and code names
             console.log(currentData);
 
             // If recent cities array contains current city, remove so it's not in the list twice
-            if (recentCities.includes(city)) {
-                var cityIndex = recentCities.indexOf(city);
-                recentCities.splice(cityIndex, 1);
+            if (recentCities.includes(cityName)) {
+                removeRecent(cityName);
             }
             // Add this city to beginning of recent cities array
-            if (code) {
-                recentCities.unshift(city + ", " + code);
-            } else {
-                recentCities.unshift(city);
-            }
+            recentCities.unshift(cityName);
 
             // Time to get the weather
             getWeather(cityName);
@@ -278,4 +314,6 @@ searchButtonEl.addEventListener("click", function(event) {
     var selectedCity = document.querySelector("input[name='city']").value;
     // Run smart search
     smartSearch(selectedCity);
+    // Clear input
+    document.querySelector("input[name='city']").value = "";
 });

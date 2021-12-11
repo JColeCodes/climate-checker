@@ -12,7 +12,7 @@ body {
     color: #1a252e;
 }
 
-a, a:hover, button, button:hover { transition: all 0.5s ease-in-out; }
+a, a:hover, button, button:hover, li, li:hover { transition: all 0.5s ease-in-out; }
 
 /* Header */
 header {
@@ -107,8 +107,9 @@ main .cities .search-history ul {
 main .cities .search-history li {
     margin: 2px 0;
     text-align: center;
+    position: relative;
 }
-main .cities .search-history button {
+main .cities .search-history .recent-button {
     display: block;
     padding: 10px;
     width: 100%;
@@ -119,9 +120,30 @@ main .cities .search-history button {
     font-size: 1em;
     font-family: 'Nanum Gothic', sans-serif;
 }
-main .cities .search-history button:hover {
+main .cities .search-history .recent-button:hover {
     background-color: #e4e9eb;
     color: #1a252e;
+}
+main .cities .search-history .delete-button {
+    position: absolute;
+    width: 28px;
+    top: 0;
+    right: 0;
+    border-radius: 50%;
+    padding: 5px;
+    font-size: 1em;
+    transform: rotate(0deg) scale(0);
+    opacity: 0;
+    background-color: transparent;
+    color: #26435c;
+}
+main .cities .search-history .delete-button:hover {
+    background-color: #26435c;
+    color: #fbfbfb;
+}
+main .cities .search-history li:hover .delete-button {
+    transform: rotate(180deg) scale(1);
+    opacity: 1;
 }
 
 /* Right Side - Weather Display */
@@ -190,6 +212,9 @@ main .day p {
     main .cities .search-history {
         font-size: 0.9em;
     }
+    main .cities .search-history .delete-button {
+        width: 26px;
+    }
 }
 
 @media screen and (max-width: 900px) {
@@ -212,6 +237,9 @@ main .day p {
     }
     main .day {
         flex: 0 100%;
+    }
+    main .cities .search-history ul li:nth-child(1n+6) {
+        display: none; 
     }
 }
 

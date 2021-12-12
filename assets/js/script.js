@@ -13,9 +13,37 @@ var currentData = {
 };
 var recentCities = [];
 
+var selectedCity = "";
+
 // Loading icon
 var loader = document.createElement("div");
 loader.classList.add("loading");
+// Error message div
+var errorMessage = document.createElement("div");
+errorMessage.classList.add("error");
+var errorFound = false;
+
+// City find error
+var findError = function(status) {
+    // Remove load icon when data is ready
+    if (weatherDiv.hasChildNodes(loader)){
+        weatherDiv.removeChild(loader);
+    }
+    // Clear any previous content
+    currentInfoEl.innerHTML = "";
+    displayWeekEl.innerHTML = "";
+    selectedCity = "";
+    document.querySelector("input[name='city']").value = "";
+
+    // Set error message
+    if (status < 500 && status > 200) {
+        errorMessage.textContent = "Your search is not a valid city."
+    } else if (status != 200) {
+        errorMessage.textContent = "There is currently an error with a server. Please try your search later."
+    }
+    weatherDiv.appendChild(errorMessage);
+    errorFound = true;
+}
 
 // Remove cities from recent cities list
 var removeRecent = function(cityName) {
@@ -48,6 +76,7 @@ var showRecent = function() {
         }
         // Button onClick function
         searchHistoryButton.setAttribute("onClick", "smartSearch('" + searchCity + "')");
+        selectedCity = searchCity;
 
         // Create delete button for if user wants to remove the city from recent searches
         var searchButtonDelete = document.createElement("button");
@@ -60,6 +89,7 @@ var showRecent = function() {
         searchHistoryLi.appendChild(searchButtonDelete);
         searchHistoryEl.appendChild(searchHistoryLi);
     }
+    // If you have more than 10 recent searches, let's limit how many are saved to the most recent 10
     if (recentCities.length > 10) {
         recentCities.pop();
         showRecent();
@@ -82,90 +112,110 @@ var getWeather = function(cityName) {
 
     // Run fetch
     fetch(weatherURL)
-        .then(function(response) {
-            return response.json();
-        })
-        .then(function(data) {
-            console.log(data);
-            // Remove load icon when data is ready
-            weatherDiv.removeChild(loader);
+    .then(function(response){
+        if (response.ok) {
+            response.json().then(function(data) {
+                console.log(data);
+                // Remove load icon when data is ready
+                if (weatherDiv.hasChildNodes(loader)){
+                    weatherDiv.removeChild(loader);
+                }
 
-            if (weatherDiv.classList.contains("hidden")) {
-                weatherDiv.classList.remove("hidden");
+                if (weatherDiv.classList.contains("hidden")) {
+                    weatherDiv.classList.remove("hidden");
+                }
+                // Clear any previous content
+                currentInfoEl.innerHTML = "";
+                displayWeekEl.innerHTML = "";
+                // Display city name
+                cityNameEl.textContent = cityName;
+                // Get which data should be displayed
+                var displayData = [
+                    {
+                        label: "Temp: ",
+                        info: data.current.temp,
+                        unit: "°F"
+                    }, {
+                        label: "Wind: ",
+                        info: data.current.wind_speed,
+                        unit: " MPH"
+                    }, {
+                        label: "Humidity: ",
+                        info: data.current.humidity,
+                        unit: "%"
+                    }, {
+                        label: "UV Index: ",
+                        info: data.current.uvi,
+                        unit: ""
+                    }];
+                // For each one, add list item and append to page
+                for (var i = 0; i < displayData.length; i++) {
+                    var datalistItem = document.createElement("li");
+                    datalistItem.textContent =
+                        displayData[i].label + 
+                        displayData[i].info + 
+                        displayData[i].unit;
+                    currentInfoEl.appendChild(datalistItem);
+                }
+                // Get date and time based off timezone
+                var time = moment().tz(data.timezone).format("MM/DD/YYYY h:mm A");
+                var displayDate = document.createElement("span");
+                displayDate.textContent = time;
+                cityNameEl.appendChild(displayDate);
+                
+                // Display 5 day forecast starting tomorrow
+                for (var i = 1; i < 6; i++) {
+                    // Get date from daily weather
+                    var weeklyDate = moment.unix(data.daily[i].dt).format("MM/DD/YYYY");
+                    // Create div element with class "day"
+                    var dayDiv = document.createElement("div");
+                    dayDiv.classList.add("day");
+                    // Weather data
+                    var dayData = "<h4>" + weeklyDate + "</h4>\
+                        <p>Temp: " + data.daily[i].temp.day + "°F</p>\
+                        <p>Wind: "  +data.daily[i].wind_speed + " MPH</p>\
+                        <p>Humidity: " + data.daily[i].humidity + "%</p>";
+                    dayDiv.innerHTML = dayData;
+                    displayWeekEl.appendChild(dayDiv);
+                }
+
+                // Clear input
+                document.querySelector("input[name='city']").value = "";
+                
+                // Display and save recent search
+                showRecent();
+                saveCities();
+            });
+            } else {
+                findError(404);
             }
-            // Clear any previous content
-            currentInfoEl.innerHTML = "";
-            displayWeekEl.innerHTML = "";
-            // Display city name
-            cityNameEl.textContent = cityName;
-            // Get which data should be displayed
-            var displayData = [
-                {
-                    label: "Temp: ",
-                    info: data.current.temp,
-                    unit: "°F"
-                }, {
-                    label: "Wind: ",
-                    info: data.current.wind_speed,
-                    unit: " MPH"
-                }, {
-                    label: "Humidity: ",
-                    info: data.current.humidity,
-                    unit: "%"
-                }, {
-                    label: "UV Index: ",
-                    info: data.current.uvi,
-                    unit: ""
-                }];
-            // For each one, add list item and append to page
-            for (var i = 0; i < displayData.length; i++) {
-                var datalistItem = document.createElement("li");
-                datalistItem.textContent =
-                    displayData[i].label + 
-                    displayData[i].info + 
-                    displayData[i].unit;
-                currentInfoEl.appendChild(datalistItem);
-            }
-            // Get date and time based off timezone
-            var time = moment().tz(data.timezone).format("MM/DD/YYYY h:mm A");
-            var displayDate = document.createElement("span");
-            displayDate.textContent = time;
-            cityNameEl.appendChild(displayDate);
-            
-            // Display 5 day forecast starting tomorrow
-            for (var i = 1; i < 6; i++) {
-                // Get date from daily weather
-                var weeklyDate = moment.unix(data.daily[i].dt).format("MM/DD/YYYY");
-                // Create div element with class "day"
-                var dayDiv = document.createElement("div");
-                dayDiv.classList.add("day");
-                // Weather data
-                var dayData = "<h4>" + weeklyDate + "</h4>\
-                    <p>Temp: " + data.daily[i].temp.day + "°F</p>\
-                    <p>Wind: "  +data.daily[i].wind_speed + " MPH</p>\
-                    <p>Humidity: " + data.daily[i].humidity + "%</p>";
-                dayDiv.innerHTML = dayData;
-                displayWeekEl.appendChild(dayDiv);
-            }
-            
-            showRecent();
-            saveCities();
+        })
+        .catch(function(){
+            findError(501);
         });
 }
 
 // Get latitude and longitude of city
-var getCoordinates = function(city, code) { // Inputs city and code names
+var getCoordinates = function(city, identifier, idCode) { // Inputs city and code names
     var cityName = city;
     
-    var cityURL = "http://api.openweathermap.org/geo/1.0/direct?q=" + cityName + "&limit=5&APPID=75a79d6afb356a02efc4ce91a90d5865"; // Limited to 5 cities of the same name... Sorry to all the Springfields out there.
+    var cityURL = "http://api.openweathermap.org/geo/1.0/direct?q=" + cityName + "&limit=3&APPID=75a79d6afb356a02efc4ce91a90d5865"; // Limited to 3 cities of the same name... Sorry to all the Springfields out there.
 
     // Run fetch
     fetch(cityURL)
         .then(function(response) {
-            return response.json();
+            if (response.ok) {
+                return response.json();
+            }
+            else {
+                findError(response.status);
+            }
         })
         .then(function(data) {
             console.log(data);
+            // Clear current data for new content
+            currentData.lat = null;
+            currentData.lon = null;
             // Reverse order, so API's first result comes out if loop isn't broken
             data.reverse();
             for (var i = 0; i < data.length; i++) {
@@ -180,26 +230,40 @@ var getCoordinates = function(city, code) { // Inputs city and code names
                 }
                 // Add country to the var
                 cityName += data[i].country;
-
-                // If a country code was submitted
-                if (code) {
-                    // If the code submitted matches the api data's country OR state, break the loop, that's the one we want
-                    if (code == data[i].country || code == data[i].state){
+                // If a country code or state name was submitted
+                if (identifier) {
+                    // If the identifier submitted matches the api data's country OR state, break the loop, that's the one we want
+                    if (identifier == data[i].country || identifier == data[i].state){
                         break;
                     }
+                    // If state and country have matching codes and the city is not in the state, then check for city in country of same code
+                    if (idCode) {
+                        if (idCode == data[i].country || idCode == data[i].state){
+                            break;
+                        }
+                    }
                 }
+
+                console.log(data[i].country, data[i].state, identifier);
             }
             console.log(currentData);
 
-            // If recent cities array contains current city, remove so it's not in the list twice
-            if (recentCities.includes(cityName)) {
-                removeRecent(cityName);
-            }
-            // Add this city to beginning of recent cities array
-            recentCities.unshift(cityName);
-
             // Time to get the weather
-            getWeather(cityName);
+            console.log(currentData.lat);
+            if (!currentData.lat) {
+                findError(404);
+            } else {
+                // If recent cities array contains current city, remove so it's not in the list twice
+                if (recentCities.includes(cityName)) {
+                    removeRecent(cityName);
+                }
+                // Add this city to beginning of recent cities array
+                recentCities.unshift(cityName);
+                getWeather(cityName);
+            }
+        })
+        .catch(function(){
+            findError(501);
         });
 }
 
@@ -210,70 +274,95 @@ var getCountry = function(city, input) {
     // Run fetch
     fetch(stateAPI)
         .then(function(response) {
-            return response.json();
+            if (response.ok) {
+                return response.json();
+            }
+            else {
+                findError(response.status);
+            }
         })
         .then(function(data) {
             var countryCode = ""; // Country code variable
             var isCountry = false; // Is this a country? boolean
+            console.log(data);
             for (var i = 0; i < data.data.length; i++) {
-                // Lowercase to work better
-                var countryLower = data.data[i].name.toLowerCase();
-                var inputLower = input.toLowerCase();
+                // Uppercase to work better
+                var countryUpper = data.data[i].name.toUpperCase();
+                var inputUpper = input.toUpperCase();
+                var countryIso = data.data[i].Iso2;
+                var countryIso3 = data.data[i].Iso3;
+                console.log(countryIso, countryIso3, countryUpper);
                 // Includes because some full names can be long, let's just search the common name
-                if (countryLower.includes(inputLower)) {
-                    countryCode = data.data[i].Iso2; // Set country code
+                if ((inputUpper == countryIso) || (inputUpper == countryIso3) || (countryUpper.includes(inputUpper)) && inputUpper.length > 2) {
+                    countryCode = countryIso; // Set country code
                     isCountry = true; // Set boolean to true
                     break; // Break from loop
                 }
             }
             // If it's still false, something is wrong...
             if (!isCountry) {
-                console.log("Hey, there, bud"); // Coming soon
+                findError(404);
+                console.log("hey there");
             } else {
                 // It IS a country! Let's run coordinates
                 getCoordinates(city, countryCode);
             }
+        })
+        .catch(function(){
+            findError(501);
         });
 }
-// There's so many M-states, like which one is which? Maine is ME? Well, if you type the state in, let's find the country code (inclues territories, so handy)!
+// If the user wants to type in the state name OR part of the state name OR the state initials/code
 var getState = function(city, input) {
     var stateAPI = "https://gist.githubusercontent.com/mshafrir/2646763/raw/8b0dbb93521f5d6889502305335104218454c2bf/states_hash.json"; // Thanks user on GitHub!
 
     // Run fetch
     fetch(stateAPI)
         .then(function(response) {
-            return response.json();
+            if (response.ok) {
+                return response.json();
+            }
+            else {
+                findError(response.status);
+            }
         })
         .then(function(data) {
+            var stateName = ""; // State code variable
             var stateCode = ""; // State code variable
             var isState = false; // Is this a state? boolean
             // Let's convert all the letters to the same case, so we're working with the same thing
-            var inputLower = input.trim().toLowerCase();
+            var inputUpper = input.trim().toUpperCase();
             for (const state in data) {
-                // Convert the api data to also be lowercase, so we can search!
-                var stateLower = data[state].toLowerCase();
+                // Convert the api data to also be uppercase, so we can search!
+                var stateUpper = data[state].toUpperCase();
                 // Using includes in case you're too lazy to write out California or Massachusetts and just put "Cali" or "Mass"... Still works! Also works if you don't get the territories' full names, cool!
-                if (stateLower.includes(inputLower)) {
-                    stateCode = state; // Set state code
+                if ((inputUpper == state) || (stateUpper.includes(inputUpper) && inputUpper.length > 2)) {
+                    stateName = data[state]; // Set state name
+                    stateCode = state;
                     isState = true; // Set boolean to true
                     break; // break out of loop
                 }
             }
+            console.log("State name", stateName);
             // If the state code is still false by now, looks like it's not a state, let's run through the countries next
             if (!isState) {
-                getCountry(city, inputLower);
+                getCountry(city, input);
             } else {
                 // It is a state? Nice, let's get the coordinates.
-                getCoordinates(city, stateCode);
+                getCoordinates(city, stateName, stateCode);
             }
+        })
+        .catch(function(){
+            findError(501);
         });
 }
 
 // Smart Search, for more advanced search options
-// I did this because I wanted to see if searching "Salem" would return the one in OR or MA, and got the one in IN... Not to mention London, England vs. London, Canada! Let's expand our horizons a little bit!
+// I did this because I wanted to see if searching "Salem" would return the one in OR or MA. Not to mention London, England vs. London, Canada! Let's expand our horizons a little bit!
 var smartSearch = function(input) {
+    selectedCity = input;
     // If there is a comma run smart search to see what state or country user wants
-    if (input.includes(",")) {
+    if (selectedCity.includes(",")) {
         // Split city and state/country into separate strings
         var cityArr = input.split(",");
         // Trim any whitespace from both strings
@@ -281,29 +370,34 @@ var smartSearch = function(input) {
             cityArr[i] = cityArr[i].trim();
         }
         // Convert to uppercase, so we're working with the same characters
-        cityArr[1]= cityArr[1].toUpperCase();
+        cityArr[1] = cityArr[1].toUpperCase();
         // If user puts "UK"/United Kingdom, change to "GB"/Great Britain because the API uses that
         if (cityArr[1] == "UK") {
             cityArr[1] = "GB";
         }
-        // If the input is 2 letters in length, it's a country/state code, and we can get coordinates
-        if (cityArr[1].length <= 2){
-            getCoordinates(cityArr[0], cityArr[1]);
-        } else {
-            // If the input is longer, we need to find the state/country codes, run to check states first
-            getState(cityArr[0], cityArr[1]);
+        // If user puts "UAE"/United Arab Emirates, change to "AE" because the API uses that
+        if (cityArr[1] == "UAE") {
+            cityArr[1] = "AE";
         }
+        getState(cityArr[0], cityArr[1]);
     } else {
         // If only a city name is input ("I.E. London") without a , to denote specifics, get coordinates
         getCoordinates(input);
     }
 
+    // Hides former search
     if (!weatherDiv.classList.contains("hidden")) {
         weatherDiv.classList.add("hidden");
     }
 
     // Append load icon
     weatherDiv.appendChild(loader);
+
+    // If an error was previously found, remove message
+    if (errorFound) {
+        weatherDiv.removeChild(errorMessage);
+        errorFound = false;
+    }
 }
 
 // Search button
@@ -311,9 +405,7 @@ searchButtonEl.addEventListener("click", function(event) {
     // Prevent default refresh
     event.preventDefault();
     // Get value
-    var selectedCity = document.querySelector("input[name='city']").value;
+    selectedCity = document.querySelector("input[name='city']").value;
     // Run smart search
     smartSearch(selectedCity);
-    // Clear input
-    document.querySelector("input[name='city']").value = "";
 });

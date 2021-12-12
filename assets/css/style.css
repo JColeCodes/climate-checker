@@ -43,6 +43,12 @@ h2, h3, h4 {
 ul {
     list-style: none;
 }
+.error {
+    padding: 10px;
+    border: 5px solid #9b1b30;
+    background-color: #a83d4e;
+    color: #f2f4f5;
+}
 
 /* Load Icon */
 .loading {

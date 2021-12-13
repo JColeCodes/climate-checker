@@ -116,7 +116,6 @@ var getWeather = function(cityName, flag) {
     .then(function(response){
         if (response.ok) {
             response.json().then(function(data) {
-                console.log(data);
                 // Remove load icon when data is ready
                 if (weatherDiv.hasChildNodes(loader)){
                     weatherDiv.removeChild(loader);
@@ -242,7 +241,6 @@ var getCoordinates = function(city, identifier, idCode) { // Inputs city and cod
             }
         })
         .then(function(data) {
-            console.log(data);
             // Clear current data for new content
             currentData.lat = null;
             currentData.lon = null;
@@ -277,13 +275,9 @@ var getCoordinates = function(city, identifier, idCode) { // Inputs city and cod
                         }
                     }
                 }
-
-                console.log(data[i].country, data[i].state, identifier);
             }
-            console.log(currentData);
 
             // Time to get the weather
-            console.log(currentData.lat);
             if (!currentData.lat) {
                 findError(404);
             } else {
@@ -318,14 +312,12 @@ var getCountry = function(city, input) {
         .then(function(data) {
             var countryCode = ""; // Country code variable
             var isCountry = false; // Is this a country? boolean
-            console.log(data);
             for (var i = 0; i < data.data.length; i++) {
                 // Uppercase to work better
                 var countryUpper = data.data[i].name.toUpperCase();
                 var inputUpper = input.toUpperCase();
                 var countryIso = data.data[i].Iso2;
                 var countryIso3 = data.data[i].Iso3;
-                console.log(countryIso, countryIso3, countryUpper);
                 // Includes because some full names can be long, let's just search the common name
                 // Have to manually add Russia because this API is missing it????
                 if ((inputUpper == countryIso) || (inputUpper == countryIso3) || (inputUpper == "RU") || ("RUSSIA".includes(inputUpper)) || (countryUpper.includes(inputUpper) && inputUpper.length > 2)) {
@@ -337,7 +329,6 @@ var getCountry = function(city, input) {
             // If it's still false, something is wrong...
             if (!isCountry) {
                 findError(404);
-                console.log("hey there");
             } else {
                 // It IS a country! Let's run coordinates
                 getCoordinates(city, countryCode);
@@ -378,7 +369,6 @@ var getState = function(city, input) {
                     break; // break out of loop
                 }
             }
-            console.log("State name", stateName);
             // If the state code is still false by now, looks like it's not a state, let's run through the countries next
             if (!isState) {
                 getCountry(city, input);

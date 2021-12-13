@@ -4,6 +4,7 @@ var displayWeekEl = document.querySelector(".week");
 var weatherDiv = document.querySelector(".weather");
 var weatherIconDiv = document.querySelector(".weather-icon");
 var searchHistoryEl = document.querySelector("#search-history");
+var unitToggleButton = document.querySelector(".unit-button");
 var searchInputEl = document.querySelector(".search-city input");
 var searchButtonEl = document.querySelector(".search-city button");
 
@@ -13,8 +14,35 @@ var currentData = {
     lon: null
 };
 var recentCities = [];
-
 var selectedCity = "";
+
+// Celsius/Fahrenheit toggle
+var fahrenheit = true;
+var unitToggleFunction = function() {
+    if (fahrenheit) {
+        unitToggleButton.classList.remove("celsius");
+        unitToggleButton.classList.add("fahrenheit");
+    } else {
+        unitToggleButton.classList.remove("fahrenheit");
+        unitToggleButton.classList.add("celsius");
+    }
+};
+if ("unit-toggle" in localStorage) {
+    fahrenheit = JSON.parse(localStorage.getItem("unit-toggle"));
+    unitToggleFunction();
+}
+unitToggleButton.addEventListener("click", function (){
+    if (fahrenheit) {
+        fahrenheit = false;
+    } else {
+        fahrenheit = true;
+    }
+    unitToggleFunction();
+    if (!weatherDiv.classList.contains("hidden")) {
+        smartSearch(selectedCity);
+    }
+    localStorage.setItem("unit-toggle", JSON.stringify(fahrenheit));
+});
 
 // Loading icon
 var loader = document.createElement("div");
@@ -77,7 +105,7 @@ var showRecent = function() {
         }
         // Button onClick function
         searchHistoryButton.setAttribute("onClick", "smartSearch('" + searchCity + "')");
-        selectedCity = searchCity;
+        //selectedCity = searchCity;
 
         // Create delete button for if user wants to remove the city from recent searches
         var searchButtonDelete = document.createElement("button");
@@ -109,13 +137,23 @@ var saveCities = function() {
 
 // Get weather
 var getWeather = function(cityName, flag) {
-    var weatherURL = "https://api.openweathermap.org/data/2.5/onecall?lat=" + currentData.lat + "&lon=" + currentData.lon + "&units=imperial&APPID=75a79d6afb356a02efc4ce91a90d5865"; // Search by lat and lon with imperial measurements
+    if (fahrenheit) {
+        var unit = "imperial";
+        var tempInitial = "F";
+        var speedInitial = "MPH";
+    } else {
+        var unit = "metric";
+        var tempInitial = "C";
+        var speedInitial = "KM/H";
+    }
+    var weatherURL = "https://api.openweathermap.org/data/2.5/onecall?lat=" + currentData.lat + "&lon=" + currentData.lon + "&units=" + unit + "&APPID=75a79d6afb356a02efc4ce91a90d5865"; // Search by lat and lon with imperial measurements
 
     // Run fetch
     fetch(weatherURL)
     .then(function(response){
         if (response.ok) {
             response.json().then(function(data) {
+                console.log(data);
                 // Remove load icon when data is ready
                 if (weatherDiv.hasChildNodes(loader)){
                     weatherDiv.removeChild(loader);
@@ -151,11 +189,11 @@ var getWeather = function(cityName, flag) {
                     {
                         label: "Temp: ",
                         info: data.current.temp,
-                        unit: "°F"
+                        unit: "°" + tempInitial
                     }, {
                         label: "Wind: ",
                         info: data.current.wind_speed,
-                        unit: " MPH"
+                        unit: " " + speedInitial
                     }, {
                         label: "Humidity: ",
                         info: data.current.humidity,
@@ -180,7 +218,11 @@ var getWeather = function(cityName, flag) {
                 weatherIconDiv.appendChild(weatherIcon);
 
                 // Get date and time based off timezone
-                var time = moment().tz(data.timezone).format("MM/DD/YYYY h:mm A");
+                if (fahrenheit) {
+                   var time = moment().tz(data.timezone).format("MM/DD/YYYY h:mm A"); 
+                } else {
+                    var time = moment().tz(data.timezone).format("DD/MM/YYYY h:mm A");
+                }
                 var displayDate = document.createElement("span");
                 displayDate.classList.add("date-time");
                 displayDate.textContent = time;
@@ -194,15 +236,19 @@ var getWeather = function(cityName, flag) {
                 // Display 5 day forecast starting tomorrow
                 for (var i = 1; i < 6; i++) {
                     // Get date from daily weather
-                    var weeklyDate = moment.unix(data.daily[i].dt).format("MM/DD/YYYY");
+                    if (fahrenheit) {
+                        var weeklyDate = moment.unix(data.daily[i].dt).format("MM/DD/YYYY");
+                    } else {
+                        var weeklyDate = moment.unix(data.daily[i].dt).format("DD/MM/YYYY");
+                    }
                     // Create div element with class "day"
                     var dayDiv = document.createElement("div");
                     dayDiv.classList.add("day");
                     // Weather data
                     var dayData = "<h4>" + weeklyDate + "</h4>\
                         <div class='daily-icon'><img src='./assets/images/icons/" + data.daily[i].weather[0].icon + ".png'></div>\
-                        <div class='daily-info'><p>Temp: " + data.daily[i].temp.day + "°F</p>\
-                        <p>Wind: "  +data.daily[i].wind_speed + " MPH</p>\
+                        <div class='daily-info'><p>Temp: " + data.daily[i].temp.day + "°" + tempInitial + "</p>\
+                        <p>Wind: "  +data.daily[i].wind_speed + " " + speedInitial + "</p>\
                         <p>Humidity: " + data.daily[i].humidity + "%</p></div>";
                     dayDiv.innerHTML = dayData;
                     displayWeekEl.appendChild(dayDiv);
@@ -241,6 +287,7 @@ var getCoordinates = function(city, identifier, idCode) { // Inputs city and cod
             }
         })
         .then(function(data) {
+            console.log(data);
             // Clear current data for new content
             currentData.lat = null;
             currentData.lon = null;
@@ -275,9 +322,13 @@ var getCoordinates = function(city, identifier, idCode) { // Inputs city and cod
                         }
                     }
                 }
+
+                console.log(data[i].country, data[i].state, identifier);
             }
+            console.log(currentData);
 
             // Time to get the weather
+            console.log(currentData.lat);
             if (!currentData.lat) {
                 findError(404);
             } else {
@@ -312,12 +363,14 @@ var getCountry = function(city, input) {
         .then(function(data) {
             var countryCode = ""; // Country code variable
             var isCountry = false; // Is this a country? boolean
+            console.log(data);
             for (var i = 0; i < data.data.length; i++) {
                 // Uppercase to work better
                 var countryUpper = data.data[i].name.toUpperCase();
                 var inputUpper = input.toUpperCase();
                 var countryIso = data.data[i].Iso2;
                 var countryIso3 = data.data[i].Iso3;
+                console.log(countryIso, countryIso3, countryUpper);
                 // Includes because some full names can be long, let's just search the common name
                 // Have to manually add Russia because this API is missing it????
                 if ((inputUpper == countryIso) || (inputUpper == countryIso3) || (inputUpper == "RU") || ("RUSSIA".includes(inputUpper)) || (countryUpper.includes(inputUpper) && inputUpper.length > 2)) {
@@ -329,6 +382,7 @@ var getCountry = function(city, input) {
             // If it's still false, something is wrong...
             if (!isCountry) {
                 findError(404);
+                console.log("hey there");
             } else {
                 // It IS a country! Let's run coordinates
                 getCoordinates(city, countryCode);
@@ -369,6 +423,7 @@ var getState = function(city, input) {
                     break; // break out of loop
                 }
             }
+            console.log("State name", stateName);
             // If the state code is still false by now, looks like it's not a state, let's run through the countries next
             if (!isState) {
                 getCountry(city, input);

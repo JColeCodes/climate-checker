@@ -34,9 +34,44 @@ header {
     background-color: #132832;
     background-image: linear-gradient(#213e4d, #132832);
     color: #fbfbfb;
+    position: relative;
 }
 header h1 {
     font-weight: 400;
+}
+header .unit-toggle {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+}
+header .unit-toggle .unit-button {
+    padding: 10px;
+    border-radius: 20px;
+    position: relative;
+    border: 0;
+    background-color: #dee1e3;
+    color: var(--main-color);
+    font-weight: 700;
+}
+header .unit-toggle .unit-button:hover {
+    cursor: pointer;
+}
+header .unit-toggle .unit-button span {
+    padding: 0 5px;
+    font-size: 1.2em;
+}
+header .unit-toggle .unit-button .toggle-bulb, header .unit-toggle .fahrenheit .toggle-bulb {
+    width: 28px; height: 28px;
+    border-radius: 50%;
+    background-color: var(--main-color);
+    position: absolute;
+    top: 0;
+    left: 0;
+    margin: 5px;
+    transition: all 0.5s ease-in-out;
+}
+header .unit-toggle .celsius .toggle-bulb {
+    left: calc(100% - 38px);
 }
 
 /* Main Body */

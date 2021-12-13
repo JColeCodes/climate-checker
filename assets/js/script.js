@@ -539,6 +539,10 @@ var smartSearch = function(input) {
         if (cityArr[1] == "UAE") {
             cityArr[1] = "AE";
         }
+        // If user puts "DRC"/Democratic Republic of the Congo, change to "CD" for search
+        if (cityArr[1] == "DRC") {
+            cityArr[1] = "CD";
+        }
         getState(cityArr[0], cityArr[1]);
     } else {
         // If only a city name is input ("I.E. London") without a , to denote specifics, get coordinates

@@ -228,7 +228,7 @@ var getWeather = function(cityName, flag) {
 var getCoordinates = function(city, identifier, idCode) { // Inputs city and code names
     var cityName = city;
     
-    var cityURL = "http://api.openweathermap.org/geo/1.0/direct?q=" + cityName + "&limit=3&APPID=75a79d6afb356a02efc4ce91a90d5865"; // Limited to 3 cities of the same name... Sorry to all the Springfields out there.
+    var cityURL = "https://api.openweathermap.org/geo/1.0/direct?q=" + cityName + "&limit=3&APPID=75a79d6afb356a02efc4ce91a90d5865"; // Limited to 3 cities of the same name... Sorry to all the Springfields out there.
 
     // Run fetch
     fetch(cityURL)

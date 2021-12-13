@@ -11,8 +11,10 @@
     <link rel="stylesheet" href="assets/css/style.css" />
 </head>
 <body class="dash-page">
+    <!-- Header -->
     <header>
         <h1>Weather Dashboard</h1>
+        <!-- Unit Toggle Button -->
         <div class="unit-toggle">
             <button class="unit-button">
                 <span class="unit-label">C</span>
@@ -21,8 +23,11 @@
             </button>
         </div>
     </header>
+    <!-- Main Body -->
     <main>
+        <!-- Sidebar (Search) -->
         <div class="cities">
+            <!-- Search Form -->
             <div class="search-city">
                 <form>
                     <h3>Seach for a City:</h3>
@@ -31,13 +36,16 @@
                 </form>
                 <p>Not finding the right city? Try adding a comma and the state or country (I.E. "London, Canada", "Salem, MA")</p>
             </div>
+            <!-- Search History -->
             <div class="search-history">
                 <ul id="search-history">
                     <li></li>
                 </ul>
             </div>
         </div>
+        <!-- Weather Display -->
         <div class="weather hidden">
+            <!-- Today's Weather -->
             <div class="current-info">
                 <h2 id="city-name"></h2>
                 <div class="weather-info">
@@ -45,18 +53,21 @@
                     <div class="weather-icon"></div>
                 </div>
             </div>
+            <!-- 5-Day Forecast -->
             <div class="forecast">
                 <h3>5-Day Forecast:</h3>
                 <div class="week"></div>
             </div>
         </div>
     </main>
+    <!-- Footer for credits -->
     <footer>
         <ul class="credits">
             <li>Weather information from <a href="https://openweathermap.org/" target="_blank">OpenWeather</a></li>
             <li>Weather icons made by <a href="https://www.flaticon.com/authors/slidicon" title="Slidicon" target="_blank">Slidicon</a></li>
         </ul>
     </footer>
+    <!-- JavaScript -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.24.0/moment.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/moment-timezone/0.5.34/moment-timezone-with-data.js"></script>
     <script src="assets/js/script.js"></script>

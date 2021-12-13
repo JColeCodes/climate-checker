@@ -2,6 +2,7 @@ var cityNameEl = document.querySelector("#city-name");
 var currentInfoEl = document.querySelector(".data-list");
 var displayWeekEl = document.querySelector(".week");
 var weatherDiv = document.querySelector(".weather");
+var weatherDispEl = document.querySelector(".current-info");
 var weatherIconDiv = document.querySelector(".weather-icon");
 var searchHistoryEl = document.querySelector("#search-history");
 var unitToggleButton = document.querySelector(".unit-button");
@@ -13,11 +14,15 @@ var currentData = {
     lat: null,
     lon: null
 };
+
+// Initial empty variables
 var recentCities = [];
 var selectedCity = "";
+var otherCities = [];
 
 // Celsius/Fahrenheit toggle
 var fahrenheit = true;
+// Toggle classes function
 var unitToggleFunction = function() {
     if (fahrenheit) {
         unitToggleButton.classList.remove("celsius");
@@ -27,10 +32,12 @@ var unitToggleFunction = function() {
         unitToggleButton.classList.add("celsius");
     }
 };
+// Load user's desired units
 if ("unit-toggle" in localStorage) {
     fahrenheit = JSON.parse(localStorage.getItem("unit-toggle"));
     unitToggleFunction();
 }
+// When toggle button is clicked
 unitToggleButton.addEventListener("click", function (){
     if (fahrenheit) {
         fahrenheit = false;
@@ -41,6 +48,7 @@ unitToggleButton.addEventListener("click", function (){
     if (!weatherDiv.classList.contains("hidden")) {
         smartSearch(selectedCity);
     }
+    // Save setting to localStorage
     localStorage.setItem("unit-toggle", JSON.stringify(fahrenheit));
 });
 
@@ -58,6 +66,10 @@ var findError = function(status) {
     if (weatherDiv.hasChildNodes(loader)){
         weatherDiv.removeChild(loader);
     }
+    if (weatherDiv.querySelectorAll(".similar-results").length > 0){
+        weatherDiv.removeChild(document.querySelector(".similar-results"));
+    }
+
     // Clear any previous content
     currentInfoEl.innerHTML = "";
     displayWeekEl.innerHTML = "";
@@ -137,6 +149,7 @@ var saveCities = function() {
 
 // Get weather
 var getWeather = function(cityName, flag) {
+    // Check which unit is selected on toggle
     if (fahrenheit) {
         var unit = "imperial";
         var tempInitial = "F";
@@ -153,10 +166,12 @@ var getWeather = function(cityName, flag) {
     .then(function(response){
         if (response.ok) {
             response.json().then(function(data) {
-                console.log(data);
                 // Remove load icon when data is ready
                 if (weatherDiv.hasChildNodes(loader)){
                     weatherDiv.removeChild(loader);
+                }
+                if (weatherDiv.querySelectorAll(".similar-results").length > 0){
+                    weatherDiv.removeChild(document.querySelector(".similar-results"));
                 }
 
                 if (weatherDiv.classList.contains("hidden")) {
@@ -167,11 +182,39 @@ var getWeather = function(cityName, flag) {
                 displayWeekEl.innerHTML = "";
                 weatherIconDiv.innerHTML = "";
                 cityNameEl.innerHTML = "";
+
+                // Display options for other cities of the same name
+                if (otherCities.length > 0) {
+                    otherCities.reverse();
+                    // Create div element to display content in
+                    var otherCitiesEl = document.createElement("div");
+                    otherCitiesEl.classList.add("similar-results");
+                    var otherCitiesTitle = document.createElement("h4");
+                    otherCitiesTitle.textContent = "Your search for \"" + cityName.split(",")[0] + "\" has other similarly-named results. Did you possibly mean: ";
+                    otherCitiesEl.appendChild(otherCitiesTitle);
+                    // Loop through other cities array to list multiple other cities
+                    for (var i = 0; i < otherCities.length; i++) {
+                        var otherCitiesButton = document.createElement("button");
+                        if (otherCities[i].country == "US") {
+                            var otherCityName = otherCities[i].city + ", " + otherCities[i].state;
+                        } else {
+                            var otherCityName = otherCities[i].city + ", " + otherCities[i].country;
+                        }
+                        otherCitiesButton.textContent = otherCityName;
+                        otherCitiesButton.setAttribute("onClick", "smartSearch('" + otherCityName + "')");
+                        otherCitiesEl.appendChild(otherCitiesButton);
+                    }
+                    // Insert before the current weather data, then clear the array
+                    weatherDiv.insertBefore(otherCitiesEl, weatherDispEl);
+                    otherCities = [];
+                }
+
                 // Display city name
                 var displayCity = document.createElement("span");
                 displayCity.classList.add("city-name");
                 displayCity.textContent = cityName;
                 cityNameEl.appendChild(displayCity);
+
                 // Get UV Index color
                 var uvi = data.current.uvi;
                 var uviColor = "green";
@@ -184,6 +227,7 @@ var getWeather = function(cityName, flag) {
                 } else if (uvi >= 11) {
                     uviColor = "violet";
                 }
+
                 // Get which data should be displayed
                 var displayData = [
                     {
@@ -203,6 +247,7 @@ var getWeather = function(cityName, flag) {
                         info: uvi,
                         unit: "</div>"
                     }];
+
                 // For each one, add list item and append to page
                 for (var i = 0; i < displayData.length; i++) {
                     var datalistItem = document.createElement("li");
@@ -212,6 +257,7 @@ var getWeather = function(cityName, flag) {
                         displayData[i].unit;
                     currentInfoEl.appendChild(datalistItem);
                 }
+
                 // Current weather icon
                 var weatherIcon = document.createElement("img");
                 weatherIcon.setAttribute("src", "./assets/images/icons/" + data.current.weather[0].icon + ".png");
@@ -274,7 +320,7 @@ var getWeather = function(cityName, flag) {
 var getCoordinates = function(city, identifier, idCode) { // Inputs city and code names
     var cityName = city;
     
-    var cityURL = "https://api.openweathermap.org/geo/1.0/direct?q=" + cityName + "&limit=3&APPID=75a79d6afb356a02efc4ce91a90d5865"; // Limited to 3 cities of the same name... Sorry to all the Springfields out there.
+    var cityURL = "https://api.openweathermap.org/geo/1.0/direct?q=" + cityName + "&limit=5&APPID=75a79d6afb356a02efc4ce91a90d5865"; // Limited to 5 cities of the same name... Sorry to all the Springfields out there.
 
     // Run fetch
     fetch(cityURL)
@@ -291,44 +337,77 @@ var getCoordinates = function(city, identifier, idCode) { // Inputs city and cod
             // Clear current data for new content
             currentData.lat = null;
             currentData.lon = null;
+
             // Reverse order, so API's first result comes out if loop isn't broken
             data.reverse();
-            for (var i = 0; i < data.length; i++) {
-                currentData.lat = data[i].lat; // Save the latitude
-                currentData.lon = data[i].lon; // Save the longitude
 
-                // Create city name var for display
-                var cityName = data[i].name + ", ";
-                // If city searched is a US state, add the state in there
-                if (data[i].state) {
-                    cityName += data[i].state + ", ";
+            var cityChoice = data.length; // Default choice to the last thing in API list
+            
+            // Check for duplicates (Same city and state!) - Seaparate loop because the next loop has a break and I want to run through all of it
+            var duplicateCity = [];
+            for (var i = 0; i < data.length; i++) {
+                if (i > 0) {
+                    duplicateCity.push(data[i].state == data[i - 1].state && data[i].country == data[i - 1].country);
                 }
-                // Add country to the var
-                cityName += data[i].country;
-                // Get flag image
-                var countryID = data[i].country.toLowerCase();
-                var flag = "https://flagcdn.com/" + countryID + ".svg";
-                
-                // If a country code or state name was submitted
-                if (identifier) {
-                    // If the identifier submitted matches the api data's country OR state, break the loop, that's the one we want
-                    if (identifier == data[i].country || identifier == data[i].state){
-                        break;
+                // If country is blank, which happened when I looked up Vatican City...
+                if (!data[i].country) {
+                    var missingCountry = i;
+                }
+            }
+            console.log(duplicateCity);
+
+            for (var i = 0; i < data.length; i++) {
+                if (i != missingCountry) { // Skip over if country is missing
+                    currentData.lat = data[i].lat; // Save the latitude
+                    currentData.lon = data[i].lon; // Save the longitude
+
+                    // Create city name var for display
+                    var cityName = data[i].name + ", ";
+                    // If city searched is a US state, add the state in there
+                    if (data[i].state) {
+                        cityName += data[i].state + ", ";
                     }
-                    // If state and country have matching codes and the city is not in the state, then check for city in country of same code
-                    if (idCode) {
-                        if (idCode == data[i].country || idCode == data[i].state){
+                    // Add country to the var
+                    cityName += data[i].country;
+                    // Get flag image
+                    var countryID = data[i].country.toLowerCase();
+                    var flag = "https://flagcdn.com/" + countryID + ".svg";
+                    
+                    // For when checking duplicate entries
+                    cityChoice = i;
+
+                    console.log(identifier, data[i].country, !duplicateCity[i]);
+                    
+                    // If a country code or state name was submitted
+                    if (identifier) {
+                        // If the identifier submitted matches the api data's country OR state, break the loop, that's the one we want if it's not a duplicate city
+                        if ((identifier == data[i].country && !duplicateCity[i]) || identifier == data[i].state){
                             break;
+                        }
+                        // If state and country have matching codes and the city is not in the state, then check for city in country of same code
+                        if (idCode) {
+                            if (idCode == data[i].country || idCode == data[i].state){
+                                break;
+                            }
                         }
                     }
                 }
-
-                console.log(data[i].country, data[i].state, identifier);
             }
-            console.log(currentData);
+            // Knowing what we know, loop again to check for duplicate entries
+            if (data.length > 1 && !identifier) { // !identifier for vague searches... If there's an identifier, then we've searched a specific city or clicked a button and that's probably the one we want
+                for (var i = 0; i < data.length; i++) {
+                    if ((data[i].country != data[cityChoice].country || data[i].state != data[cityChoice].state) && (data[i].country)) {
+                        var cityOther = {
+                            city: data[i].name,
+                            state: data[i].state,
+                            country: data[i].country
+                        }
+                        otherCities.push(cityOther);
+                    }
+                }
+            }
 
             // Time to get the weather
-            console.log(currentData.lat);
             if (!currentData.lat) {
                 findError(404);
             } else {
@@ -346,7 +425,7 @@ var getCoordinates = function(city, identifier, idCode) { // Inputs city and cod
         });
 }
 
-// So, apparently South Africa's country code is ZA, even though there's no Z in the English name for the country. Knowing all the country codes is hard, so you can just type in the country's name.
+// Knowing all the country codes is hard, so you can just type in the country's name.
 var getCountry = function(city, input) {
     var stateAPI = "https://countriesnow.space/api/v0.1/countries/iso"; // Thanks countries now!
 
@@ -363,18 +442,21 @@ var getCountry = function(city, input) {
         .then(function(data) {
             var countryCode = ""; // Country code variable
             var isCountry = false; // Is this a country? boolean
-            console.log(data);
             for (var i = 0; i < data.data.length; i++) {
                 // Uppercase to work better
                 var countryUpper = data.data[i].name.toUpperCase();
                 var inputUpper = input.toUpperCase();
                 var countryIso = data.data[i].Iso2;
                 var countryIso3 = data.data[i].Iso3;
-                console.log(countryIso, countryIso3, countryUpper);
                 // Includes because some full names can be long, let's just search the common name
-                // Have to manually add Russia because this API is missing it????
-                if ((inputUpper == countryIso) || (inputUpper == countryIso3) || (inputUpper == "RU") || ("RUSSIA".includes(inputUpper)) || (countryUpper.includes(inputUpper) && inputUpper.length > 2)) {
+                if ((inputUpper == countryIso) || (inputUpper == countryIso3) || ("RUSSIA".includes(inputUpper)) || (countryUpper.includes(inputUpper) && inputUpper.length > 2)) {
                     countryCode = countryIso; // Set country code
+                    isCountry = true; // Set boolean to true
+                    break; // Break from loop
+                }
+                // Have to manually add Russia, and the Congo countries because this API is missing them??
+                if ((inputUpper == "CD") || (inputUpper == "CG") || (inputUpper == "RU")) {
+                    countryCode = inputUpper; // Let's go, Congo
                     isCountry = true; // Set boolean to true
                     break; // Break from loop
                 }
@@ -382,7 +464,6 @@ var getCountry = function(city, input) {
             // If it's still false, something is wrong...
             if (!isCountry) {
                 findError(404);
-                console.log("hey there");
             } else {
                 // It IS a country! Let's run coordinates
                 getCoordinates(city, countryCode);
@@ -423,7 +504,6 @@ var getState = function(city, input) {
                     break; // break out of loop
                 }
             }
-            console.log("State name", stateName);
             // If the state code is still false by now, looks like it's not a state, let's run through the countries next
             if (!isState) {
                 getCountry(city, input);
@@ -444,7 +524,7 @@ var smartSearch = function(input) {
     // If there is a comma run smart search to see what state or country user wants
     if (selectedCity.includes(",")) {
         // Split city and state/country into separate strings
-        var cityArr = input.split(",");
+        var cityArr = selectedCity.split(",");
         // Trim any whitespace from both strings
         for (var i = 0; i < cityArr.length; i++) {
             cityArr[i] = cityArr[i].trim();

@@ -261,6 +261,21 @@ main .weather-info .weather-icon img {
     max-height: 150px;
 }
 
+main .weather .similar-results {
+    margin-bottom: 10px;
+}
+main .weather .similar-results button {
+    background-color: #dee1e3;
+    color: var(--main-color);
+    border: 0;
+    padding: 10px;
+    margin: 2px 5px 0 0;
+}
+main .weather .similar-results button:hover {
+    cursor: pointer;
+    background-color: #e4e9eb;
+}
+
 /* Right Side - 5-Day Forecast */
 main .week {
     display: flex;
@@ -330,7 +345,7 @@ main .day .daily-icon img {
 /* Footer*/
 footer {
     width: 100%;
-    padding: 30px 50px;
+    padding: 20px 50px;
     align-self: end;
     text-align: center;
 }
@@ -338,7 +353,8 @@ footer ul.credits li {
     margin: 2px 0;
 }
 
-/* RESPONSIVE */
+/* RESPONSIVE -------------------------------------------------------------------------- */
+/* 1024 */
 @media screen and (max-width: 1024px) {
     main .cities .search-history {
         font-size: 0.9em;
@@ -355,6 +371,7 @@ footer ul.credits li {
     }
 }
 
+/* 600 */
 @media screen and (max-width: 600px) {
     main .cities, main .weather {
         width: 100%;
@@ -392,10 +409,26 @@ footer ul.credits li {
     }
 }
 
+/* 400 */
 @media screen and (max-width: 400px) {
     header {
         padding: 30px;
         font-size: 1.3em;
+    }
+    header .unit-toggle .unit-button {
+        padding: 6px;
+        border-radius: 18px;
+    }
+    header .unit-toggle .unit-button span {
+        padding: 0 3px;
+        font-size: 1em;
+    }
+    header .unit-toggle .unit-button .toggle-bulb, header .unit-toggle .fahrenheit .toggle-bulb {
+        width: 20px; height: 20px;
+        margin: 4px;
+    }
+    header .unit-toggle .celsius .toggle-bulb {
+        left: calc(100% - 28px);
     }
     main .weather-info .data-list {
         margin-right: 30px;
@@ -411,6 +444,7 @@ footer ul.credits li {
     }
 }
 
+/* 270 */
 @media screen and (max-width: 270px) {
     main .weather-info .data-list {
         margin-right: 0;

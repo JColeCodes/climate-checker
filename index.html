@@ -9,7 +9,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.11.2/css/all.min.css">
     <link rel="stylesheet" href="assets/css/style.css" />
 </head>
-<body>
+<body class="dash-page">
     <header>
         <h1>Weather Dashboard</h1>
     </header>
@@ -32,7 +32,10 @@
         <div class="weather hidden">
             <div class="current-info">
                 <h2 id="city-name"></h2>
-                <ul class="data-list"></ul>
+                <div class="weather-info">
+                    <ul class="data-list"></ul>
+                    <div class="weather-icon"></div>
+                </div>
             </div>
             <div class="forecast">
                 <h3>5-Day Forecast:</h3>
@@ -40,6 +43,12 @@
             </div>
         </div>
     </main>
+    <footer>
+        <ul class="credits">
+            <li>Weather information from <a href="https://openweathermap.org/" target="_blank">OpenWeather</a></li>
+            <li>Weather icons made by <a href="https://www.flaticon.com/authors/slidicon" title="Slidicon" target="_blank">Slidicon</a></li>
+        </ul>
+    </footer>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.24.0/moment.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/moment-timezone/0.5.34/moment-timezone-with-data.js"></script>
     <script src="assets/js/script.js"></script>

@@ -1,3 +1,7 @@
+:root {
+    --main-color: #213e4d;
+}
+
 * {
     margin: 0;
     padding: 0;
@@ -11,6 +15,12 @@ body {
     font-size: 16px;
     color: #1a252e;
 }
+.dash-page {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    min-height: 100vh;
+}
 
 a, a:hover, button, button:hover, li, li:hover { transition: all 0.5s ease-in-out; }
 
@@ -20,8 +30,8 @@ header {
     padding: 50px;
     text-align: center;
     font-size: 1.5em;
-    background-color: #1a252e;
-    background-image: linear-gradient(#1f3342, #1a252e);
+    background-color: #132832;
+    background-image: linear-gradient(#213e4d, #132832);
     color: #fbfbfb;
 }
 header h1 {
@@ -38,7 +48,14 @@ main {
     margin: 0 auto;
 }
 h2, h3, h4 {
-    color: #26435c;
+    color: var(--main-color);
+}
+a {
+    color: #005c66;
+    text-decoration: none;
+}
+a:hover{
+    color: var(--main-color);
 }
 ul {
     list-style: none;
@@ -53,7 +70,7 @@ ul {
 /* Load Icon */
 .loading {
     border: 8px solid #dee1e3;
-    border-top-color: #26435c;
+    border-top-color: var(--main-color);
     border-radius: 50%;
     width: 40px; height: 40px;
     animation: load 1s linear infinite;
@@ -73,7 +90,7 @@ main .cities h3 {
     margin: 5px;
 }
 main .cities input, main .cities button {
-    width: 100%;
+    width: calc(100% - 10px);
     padding: 10px;
     margin: 5px;
     font-size: 0.9em;
@@ -82,11 +99,12 @@ main .cities p {
     font-size: .8em;
     padding: 5px;
     font-style: italic;
+    margin: 0 5px;
 }
 main .cities input {
     background-color: #ffffff;
     border: 1px solid #dee1e3;
-    color: #26435c;
+    color: var(--main-color);
     font-family: 'Nanum Gothic', sans-serif;
 }
 main .cities input:focus {
@@ -94,7 +112,7 @@ main .cities input:focus {
 }
 main .cities button {
     border: 0;
-    background-color: #26435c;
+    background-color: var(--main-color);
     color: #fbfbfb;
     font-family: 'Nanum Gothic', sans-serif;
 }
@@ -120,7 +138,7 @@ main .cities .search-history .recent-button {
     padding: 10px;
     width: 100%;
     background-color: #dee1e3;
-    color: #26435c;
+    color: var(--main-color);
     text-decoration: none;
     margin: 0;
     font-size: 1em;
@@ -141,10 +159,10 @@ main .cities .search-history .delete-button {
     transform: rotate(0deg) scale(0);
     opacity: 0;
     background-color: transparent;
-    color: #26435c;
+    color: var(--main-color);
 }
 main .cities .search-history .delete-button:hover {
-    background-color: #26435c;
+    background-color: var(--main-color);
     color: #fbfbfb;
 }
 main .cities .search-history li:hover .delete-button {
@@ -166,16 +184,19 @@ main .current-info {
 main .current-info h2 {
     font-size: 1.8em;
     margin: 0 0 10px 0;
-    position: relative;
+    display: flex;
+    flex-wrap: wrap;
+    align-content: center;
 }
-main .current-info h2 span {
+main .current-info h2 span.city-name {
+    margin: 0 15px 0 0;
+}
+main .current-info h2 span.date-time {
     font-size: 0.65em;
     padding: 8px;
-    margin: -5px 0 0 15px;
-    background-color: #26435c;
+    background-color: var(--main-color);
     color: #f2f4f5;
     font-weight: 400;
-    position: absolute;
 }
 main .current-info li {
     padding: 10px 0;
@@ -185,32 +206,98 @@ main .forecast h3 {
     margin: 15px 5px 5px;
 }
 
+main .weather-info {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-start;
+    justify-content: flex-start;
+}
+main .weather-info .data-list {
+    margin-right: 50px;
+}
+/*main .weather-info .weather-icon {
+    flex: 1;
+}*/
+main .weather-info .weather-icon img {
+    max-width: 100%;
+    max-height: 150px;
+}
+
 /* Right Side - 5-Day Forecast */
 main .week {
     display: flex;
     flex-wrap: wrap;
     align-items: flex-start;
-    justify-content: space-around;
+    justify-content: center;
 }
 main .day {
-    flex: 1;
-    background-color: #26435c;
+    width: calc(20% - 10px);
+    background-color: var(--main-color);
     color: #fbfbfb;
     padding: 15px;
     margin: 5px;
     font-size: 0.88em;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-start;
+    justify-content: space-between;
 }
 main .day h4 {
     color: #ffffff;
     margin: 0 0 10px 0;
     font-size: 1.2em;
+    width: 100%;
 }
 main .day p {
     margin: 10px 0 0 0;
+    width: 100%;
+}
+main .day .daily-info, main .day .daily-icon {
+    width: 100%;
+}
+main .day .daily-icon img {
+    width: 100%;
 }
 
 .hidden .current-info, .hidden .forecast {
     display: none;
+}
+
+/* UV Index Colors */
+.uv {
+    display: inline-block;
+    padding: 6px 8px;
+    border-radius: 5px;
+    color: #ffffff;
+    font-size: 0.9em;
+    margin: -5px 2px;
+}
+.uv-green {
+    background-color: #1e784d;
+}
+.uv-yellow {
+    background-color: #f9d67a;
+    color: #1a252e;
+}
+.uv-orange {
+    background-color: #eb6e4b;
+}
+.uv-red {
+    background-color: #9b1b30;
+}
+.uv-violet {
+    background-color: #7b4f9a;
+}
+
+/* Footer*/
+footer {
+    width: 100%;
+    padding: 30px 50px;
+    align-self: end;
+    text-align: center;
+}
+footer ul.credits li {
+    margin: 2px 0;
 }
 
 /* RESPONSIVE */
@@ -221,13 +308,12 @@ main .day p {
     main .cities .search-history .delete-button {
         width: 26px;
     }
-}
-
-@media screen and (max-width: 900px) {
-    main .current-info h2 span {
-        margin: 10px 0;
-        position: relative;
-        display: inline-block;
+    main .day {
+        width: calc(33% - 10px);
+    }
+    footer {
+        padding: 20px;
+        text-align: left;
     }
 }
 
@@ -240,9 +326,20 @@ main .day p {
     }
     main .current-info h2 span {
         display: block;
+        width: 100%;
+    }
+    main .current-info h2 span.city-name {
+        margin: 0 0 10px 0;
     }
     main .day {
-        flex: 0 100%;
+        width: 100%;
+    }
+    main .day .daily-info {
+        width: 70%;
+    }
+    main .day .daily-icon {
+        width: 30%;
+        order: 2;
     }
     main .cities .search-history ul li:nth-child(1n+6) {
         display: none; 
@@ -253,5 +350,34 @@ main .day p {
     header {
         padding: 30px;
         font-size: 1.3em;
+    }
+    main .weather-info .data-list {
+        margin-right: 30px;
+    }
+    main .weather-info .weather-icon img {
+        max-height: 130px;
+    }
+}
+
+@media screen and (max-width: 270px) {
+    main .weather-info .data-list {
+        margin-right: 0;
+        width: 100%;
+        order: 2;
+    }
+    main .weather-info .weather-icon {
+        width: 100%;
+        text-align: center;
+    }
+    main .weather-info .weather-icon img {
+        max-height: initial;
+    }
+    main .day .daily-info {
+        width: 100%;
+        order: 2;
+    }
+    main .day .daily-icon {
+        width: 100%;
+        order: 1;
     }
 }

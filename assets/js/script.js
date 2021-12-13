@@ -2,6 +2,7 @@ var cityNameEl = document.querySelector("#city-name");
 var currentInfoEl = document.querySelector(".data-list");
 var displayWeekEl = document.querySelector(".week");
 var weatherDiv = document.querySelector(".weather");
+var weatherIconDiv = document.querySelector(".weather-icon");
 var searchHistoryEl = document.querySelector("#search-history");
 var searchInputEl = document.querySelector(".search-city input");
 var searchButtonEl = document.querySelector(".search-city button");
@@ -127,8 +128,25 @@ var getWeather = function(cityName) {
                 // Clear any previous content
                 currentInfoEl.innerHTML = "";
                 displayWeekEl.innerHTML = "";
+                weatherIconDiv.innerHTML = "";
+                cityNameEl.innerHTML = "";
                 // Display city name
-                cityNameEl.textContent = cityName;
+                var displayCity = document.createElement("span");
+                displayCity.classList.add("city-name");
+                displayCity.textContent = cityName;
+                cityNameEl.appendChild(displayCity);
+                // Get UV Index color
+                var uvi = data.current.uvi;
+                var uviColor = "green";
+                if (uvi >= 3 && uvi < 6) {
+                    uviColor = "yellow";
+                } else if (uvi >= 6 && uvi < 8) {
+                    uviColor = "orange";
+                } else if (uvi >= 8 && uvi < 11) {
+                    uviColor = "red";
+                } else if (uvi >= 11) {
+                    uviColor = "violet";
+                }
                 // Get which data should be displayed
                 var displayData = [
                     {
@@ -144,22 +162,28 @@ var getWeather = function(cityName) {
                         info: data.current.humidity,
                         unit: "%"
                     }, {
-                        label: "UV Index: ",
-                        info: data.current.uvi,
-                        unit: ""
+                        label: "UV Index: <div class='uv uv-" + uviColor + "'>",
+                        info: uvi,
+                        unit: "</div>"
                     }];
                 // For each one, add list item and append to page
                 for (var i = 0; i < displayData.length; i++) {
                     var datalistItem = document.createElement("li");
-                    datalistItem.textContent =
+                    datalistItem.innerHTML =
                         displayData[i].label + 
                         displayData[i].info + 
                         displayData[i].unit;
                     currentInfoEl.appendChild(datalistItem);
                 }
+                // Current weather icon
+                var weatherIcon = document.createElement("img");
+                weatherIcon.setAttribute("src", "./assets/images/icons/" + data.current.weather[0].icon + ".png");
+                weatherIconDiv.appendChild(weatherIcon);
+
                 // Get date and time based off timezone
                 var time = moment().tz(data.timezone).format("MM/DD/YYYY h:mm A");
                 var displayDate = document.createElement("span");
+                displayDate.classList.add("date-time");
                 displayDate.textContent = time;
                 cityNameEl.appendChild(displayDate);
                 
@@ -172,9 +196,10 @@ var getWeather = function(cityName) {
                     dayDiv.classList.add("day");
                     // Weather data
                     var dayData = "<h4>" + weeklyDate + "</h4>\
-                        <p>Temp: " + data.daily[i].temp.day + "°F</p>\
+                        <div class='daily-icon'><img src='./assets/images/icons/" + data.daily[i].weather[0].icon + ".png'></div>\
+                        <div class='daily-info'><p>Temp: " + data.daily[i].temp.day + "°F</p>\
                         <p>Wind: "  +data.daily[i].wind_speed + " MPH</p>\
-                        <p>Humidity: " + data.daily[i].humidity + "%</p>";
+                        <p>Humidity: " + data.daily[i].humidity + "%</p></div>";
                     dayDiv.innerHTML = dayData;
                     displayWeekEl.appendChild(dayDiv);
                 }
@@ -293,7 +318,8 @@ var getCountry = function(city, input) {
                 var countryIso3 = data.data[i].Iso3;
                 console.log(countryIso, countryIso3, countryUpper);
                 // Includes because some full names can be long, let's just search the common name
-                if ((inputUpper == countryIso) || (inputUpper == countryIso3) || (countryUpper.includes(inputUpper)) && inputUpper.length > 2) {
+                // Have to manually add Russia because this API is missing it????
+                if ((inputUpper == countryIso) || (inputUpper == countryIso3) || (inputUpper == "RU") || ("RUSSIA".includes(inputUpper)) || (countryUpper.includes(inputUpper) && inputUpper.length > 2)) {
                     countryCode = countryIso; // Set country code
                     isCountry = true; // Set boolean to true
                     break; // Break from loop

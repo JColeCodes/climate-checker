@@ -198,6 +198,10 @@ main .current-info h2 span.date-time {
     color: #f2f4f5;
     font-weight: 400;
 }
+main .current-info h2 img {
+    height: 37px;
+    margin-left: 10px;
+}
 main .current-info li {
     padding: 10px 0;
 }
@@ -330,6 +334,14 @@ footer ul.credits li {
     }
     main .current-info h2 span.city-name {
         margin: 0 0 10px 0;
+        flex: 1;
+    }
+    main .current-info h2 span.date-time {
+        order: 3;
+    }
+    main .current-info h2 img {
+        order: 2;
+        height: 34px;
     }
     main .day {
         width: 100%;
@@ -356,6 +368,12 @@ footer ul.credits li {
     }
     main .weather-info .weather-icon img {
         max-height: 130px;
+    }
+    main .current-info h2 span.city-name {
+        flex: 100%;
+    }
+    main .current-info h2 img {
+        display: none;
     }
 }
 

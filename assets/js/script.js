@@ -108,7 +108,7 @@ var saveCities = function() {
 }
 
 // Get weather
-var getWeather = function(cityName) {
+var getWeather = function(cityName, flag) {
     var weatherURL = "https://api.openweathermap.org/data/2.5/onecall?lat=" + currentData.lat + "&lon=" + currentData.lon + "&units=imperial&APPID=75a79d6afb356a02efc4ce91a90d5865"; // Search by lat and lon with imperial measurements
 
     // Run fetch
@@ -186,6 +186,11 @@ var getWeather = function(cityName) {
                 displayDate.classList.add("date-time");
                 displayDate.textContent = time;
                 cityNameEl.appendChild(displayDate);
+
+                // Get country flag
+                var flagImg = document.createElement("img");
+                flagImg.setAttribute("src", flag);
+                cityNameEl.appendChild(flagImg);
                 
                 // Display 5 day forecast starting tomorrow
                 for (var i = 1; i < 6; i++) {
@@ -255,6 +260,10 @@ var getCoordinates = function(city, identifier, idCode) { // Inputs city and cod
                 }
                 // Add country to the var
                 cityName += data[i].country;
+                // Get flag image
+                var countryID = data[i].country.toLowerCase();
+                var flag = "https://flagcdn.com/" + countryID + ".svg";
+                
                 // If a country code or state name was submitted
                 if (identifier) {
                     // If the identifier submitted matches the api data's country OR state, break the loop, that's the one we want
@@ -284,7 +293,7 @@ var getCoordinates = function(city, identifier, idCode) { // Inputs city and cod
                 }
                 // Add this city to beginning of recent cities array
                 recentCities.unshift(cityName);
-                getWeather(cityName);
+                getWeather(cityName, flag);
             }
         })
         .catch(function(){

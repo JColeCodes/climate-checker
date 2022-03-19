@@ -4,7 +4,7 @@ The search is intutive to allow users to look up multiple cities of the same nam
 In the top right, there is a toggle button to change units from Fahrenheit (the default) to Celsius, and in doing so, also changes miles to km (for the speed) and the date format from month/day to day/month.
 
 # View Live Page
-[View the live Weather Dashboard page on GitHub.](https://jcolecodes.github.io/weather-dashboard-challenge-06/)
+[View the live Weather Dashboard page on GitHub.](https://jcolecodes.github.io/climate-checker/)
 
 # Screenshot
 ![Screenshot of the weather dashboard in 1400px width](./screenshot.jpg)
